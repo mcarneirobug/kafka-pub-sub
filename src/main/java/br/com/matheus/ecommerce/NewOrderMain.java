@@ -1,6 +1,7 @@
 package br.com.matheus.ecommerce;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -16,16 +17,21 @@ public class NewOrderMain {
 
         try (var producer = new KafkaProducer<String, String>(properties())) { /* Tipo da chave e o tipo da mensagem */
             var value = "132323,67534,79794729472";
-            var record = new ProducerRecord<>("ECCOMERCE_NEW_ORDER", value, value);
+            var record = new ProducerRecord<>("ECOMMERCE_NEW_ORDER", value, value);
             /* send é um método assíncrono (future) utilizaremos o get para esperar ele terminar */
-            producer.send(record, (data, ex) -> {
+            final Callback callback = (data, ex) -> {
                 if (ex != null) {
                     log.error(ex.getMessage());
                     return;
                 }
                 log.info("Success send topic: " + data.topic() + " - with partition: " + data.partition()
                         + " - with offset: " + data.offset() + " - with timestamp: " + data.timestamp());
-            }).get();
+            };
+            producer.send(record, callback).get();
+
+            var email = "Thank you for your order! We are processing you order!";
+            var emailRecord = new ProducerRecord<>("ECOMMERCE_SEND_EMAIL", email, email);
+            producer.send(emailRecord, callback).get();
         }
     }
 
