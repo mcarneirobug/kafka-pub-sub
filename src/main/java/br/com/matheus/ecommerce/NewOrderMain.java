@@ -8,6 +8,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -16,8 +17,9 @@ public class NewOrderMain {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
         try (var producer = new KafkaProducer<String, String>(properties())) { /* Tipo da chave e o tipo da mensagem */
-            var value = "132323,67534,79794729472";
-            var record = new ProducerRecord<>("ECOMMERCE_NEW_ORDER", value, value);
+            var key = UUID.randomUUID().toString();
+            var value = key + "132323,67534,79794729472";
+            var record = new ProducerRecord<>("ECOMMERCE_NEW_ORDER", key, value);
             /* send é um método assíncrono (future) utilizaremos o get para esperar ele terminar */
             final Callback callback = (data, ex) -> {
                 if (ex != null) {
@@ -30,7 +32,7 @@ public class NewOrderMain {
             producer.send(record, callback).get();
 
             var email = "Thank you for your order! We are processing you order!";
-            var emailRecord = new ProducerRecord<>("ECOMMERCE_SEND_EMAIL", email, email);
+            var emailRecord = new ProducerRecord<>("ECOMMERCE_SEND_EMAIL", key, email);
             producer.send(emailRecord, callback).get();
         }
     }
