@@ -14,7 +14,7 @@ public class FreudDetectorService {
 
     public static void main(String[] args) {
         var consumer = new KafkaConsumer<String, String>(properties());
-        consumer.subscribe(Collections.singletonList("ECCOMERCE_NEW_ORDER"));
+        consumer.subscribe(Collections.singletonList("ECOMMERCE_NEW_ORDER"));
         /* o consumer pergunta por algum tempo se há mensagens
         * e será retornado vários registros que foram enviados pelo producer
         */
