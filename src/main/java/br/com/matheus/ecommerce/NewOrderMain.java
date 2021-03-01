@@ -20,7 +20,7 @@ public class NewOrderMain {
             /* send é um método assíncrono (future) utilizaremos o get para esperar ele terminar */
             producer.send(record, (data, ex) -> {
                 if (ex != null) {
-                    ex.printStackTrace();
+                    log.error(ex.getMessage());
                     return;
                 }
                 log.info("Success send topic: " + data.topic() + " - with partition: " + data.partition()
