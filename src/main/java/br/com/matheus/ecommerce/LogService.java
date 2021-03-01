@@ -6,15 +6,15 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 @Slf4j
-public class FreudDetectorService {
+public class LogService {
 
     public static void main(String[] args) {
         var consumer = new KafkaConsumer<String, String>(properties());
-        consumer.subscribe(Collections.singletonList("ECOMMERCE_NEW_ORDER"));
+        consumer.subscribe(Pattern.compile("ECOMMERCE.*"));
         /* o consumer pergunta por algum tempo se há mensagens
         * e será retornado vários registros que foram enviados pelo producer
         */
@@ -23,20 +23,12 @@ public class FreudDetectorService {
             if (!records.isEmpty()) {
                 log.info("Record found in the system, with: " + records.count());
                 for (var record : records) {
-                    System.out.println("-".repeat(20));
-                    System.out.println("Processing new order, checking for fraud");
+                    System.out.println("-".repeat(50));
+                    System.out.println("LOG: " + record.topic());
                     System.out.println(record.key());
                     System.out.println(record.value());
                     System.out.println(record.partition());
                     System.out.println(record.offset());
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        // ignoring
-                        e.printStackTrace();
-                    }
-                    log.info("Order processed with success");
-                    System.out.println("Order processed");
                 }
             }
         }
@@ -48,7 +40,7 @@ public class FreudDetectorService {
         /* iremos passar o desserializador de bytes para string */
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, FreudDetectorService.class.getSimpleName());
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, LogService.class.getSimpleName());
         return properties;
     }
 }
