@@ -8,8 +8,10 @@ public class FreudDetectorService {
 
     public static void main(String[] args) {
         var freudService = new FreudDetectorService();
-        var service = new KafkaService(EmailService.class.getSimpleName(), "ECOMMERCE_NEW_ORDER", freudService::parse);
-        service.run();
+        try (var service = new KafkaService(
+                EmailService.class.getSimpleName(), "ECOMMERCE_NEW_ORDER", freudService::parse)) {
+            service.run();
+        }
     }
 
     private void parse(ConsumerRecord<String, String> record) {
