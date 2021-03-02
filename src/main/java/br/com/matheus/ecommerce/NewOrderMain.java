@@ -15,25 +15,26 @@ import java.util.concurrent.ExecutionException;
 public class NewOrderMain {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
+        for (var i = 0; i < 10; i++) {
+            try (var producer = new KafkaProducer<String, String>(properties())) { /* Tipo da chave e o tipo da mensagem */
+                var key = UUID.randomUUID().toString();
+                var value = key + "132323,67534,79794729472";
+                var record = new ProducerRecord<>("ECOMMERCE_NEW_ORDER", key, value);
+                /* send é um método assíncrono (future) utilizaremos o get para esperar ele terminar */
+                final Callback callback = (data, ex) -> {
+                    if (ex != null) {
+                        log.error(ex.getMessage());
+                        return;
+                    }
+                    log.info("Success send topic: " + data.topic() + " - with partition: " + data.partition()
+                            + " - with offset: " + data.offset() + " - with timestamp: " + data.timestamp());
+                };
+                producer.send(record, callback).get();
 
-        try (var producer = new KafkaProducer<String, String>(properties())) { /* Tipo da chave e o tipo da mensagem */
-            var key = UUID.randomUUID().toString();
-            var value = key + "132323,67534,79794729472";
-            var record = new ProducerRecord<>("ECOMMERCE_NEW_ORDER", key, value);
-            /* send é um método assíncrono (future) utilizaremos o get para esperar ele terminar */
-            final Callback callback = (data, ex) -> {
-                if (ex != null) {
-                    log.error(ex.getMessage());
-                    return;
-                }
-                log.info("Success send topic: " + data.topic() + " - with partition: " + data.partition()
-                        + " - with offset: " + data.offset() + " - with timestamp: " + data.timestamp());
-            };
-            producer.send(record, callback).get();
-
-            var email = "Thank you for your order! We are processing you order!";
-            var emailRecord = new ProducerRecord<>("ECOMMERCE_SEND_EMAIL", key, email);
-            producer.send(emailRecord, callback).get();
+                var email = "Thank you for your order! We are processing you order!";
+                var emailRecord = new ProducerRecord<>("ECOMMERCE_SEND_EMAIL", key, email);
+                producer.send(emailRecord, callback).get();
+            }
         }
     }
 
@@ -41,8 +42,8 @@ public class NewOrderMain {
         var properties = new Properties();
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092"); /* especificar aonde está rodando o kafka */
         /*
-          * Tanto a chave quanto a mensagem irão transformar em strings,
-          * ou seja, iremos passar serializadores de string para bytes.
+         * Tanto a chave quanto a mensagem irão transformar em strings,
+         * ou seja, iremos passar serializadores de string para bytes.
          */
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
