@@ -14,13 +14,13 @@ public class EmailService {
                 EmailService.class.getSimpleName(),
                 "ECOMMERCE_SEND_EMAIL",
                 emailService::parse,
-                String.class,
+                Email.class,
                 Map.of())) {
             service.run();
         }
     }
 
-    private void parse(ConsumerRecord<String, String> record) {
+    private void parse(ConsumerRecord<String, Email> record) {
         log.info("-".repeat(60));
         log.info("Send email...");
         log.info("Key -> " + (record.key()));

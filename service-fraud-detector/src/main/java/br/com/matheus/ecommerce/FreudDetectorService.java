@@ -11,7 +11,7 @@ public class FreudDetectorService {
     public static void main(String[] args) {
         var freudService = new FreudDetectorService();
         try (var service = new KafkaService<>(
-                EmailService.class.getSimpleName(),
+                FreudDetectorService.class.getSimpleName(),
                 "ECOMMERCE_NEW_ORDER",
                 freudService::parse,
                 Order.class,
