@@ -6,14 +6,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import java.util.Map;
 
 @Slf4j
-public class FreudDetectorService {
+public class FraudDetectorService {
 
     public static void main(String[] args) {
-        var freudService = new FreudDetectorService();
+        var fraudService = new FraudDetectorService();
         try (var service = new KafkaService<>(
-                FreudDetectorService.class.getSimpleName(),
+                FraudDetectorService.class.getSimpleName(),
                 "ECOMMERCE_NEW_ORDER",
-                freudService::parse,
+                fraudService::parse,
                 Order.class,
                 Map.of())) { // é obrigatório, porém podemos passar vazio
             service.run();
